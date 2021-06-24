@@ -21,6 +21,9 @@ dcap: libra_tls_attest.so libra_tls_verify_dcap.so libra_tls_verify_dcap_graphen
 libra_tls_attest.so: ra_tls_attest.o
 	$(CC) $^ $(LDFLAGS) -l:libmbedx509.a -l:libmbedcrypto.a -shared -o $@
 
+libra_tls_attest.a: ra_tls_attest.o
+	ar rcs $@ $^
+
 libra_tls_verify_epid.so: ra_tls_verify_common.o ra_tls_verify_epid.o
 	$(CC) $^ $(LDFLAGS) -L../common -lsgx_util -lmbedcrypto -lmbedx509 -shared -o $@
 
