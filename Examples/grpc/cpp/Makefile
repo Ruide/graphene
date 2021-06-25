@@ -19,6 +19,8 @@
 # Relative path to Graphene root
 GRAPHENEDIR = ../../..
 SGX_SIGNER_KEY ?= $(GRAPHENEDIR)/Pal/src/host/Linux-SGX/signer/enclave-key.pem
+MY_INSTALL_DIR ?= $(PWD)/.local
+export PATH := $(MY_INSTALL_DIR)/bin:$(PATH)
 
 ifeq ($(DEBUG),1)
 GRAPHENE_LOG_LEVEL = debug
@@ -76,9 +78,22 @@ grpc-server.token: grpc-server.sig
 # Redis build process creates the final executable as src/redis-server. For
 # simplicity, copy it into our root directory.
 
-grpc-server: 
+grpc-server: .local/bin/grpc_cpp_plugin
+	cd grpc/examples/cpp/helloworld && mkdir -p cmake/build && cd cmake/build && \
+	cmake -DCMAKE_PREFIX_PATH=$(MY_INSTALL_DIR) ../.. && make -j
 	cp ./grpc/examples/cpp/helloworld/cmake/build/greeter_server grpc-server
-# test -s grpc-server || { echo "grpc-server does not exist! Exiting..."; exit 1; }
+
+.local/bin/grpc_cpp_plugin: grpc
+	mkdir -p $(MY_INSTALL_DIR)
+	cd grpc && mkdir -p cmake/build && cd cmake/build && \
+	cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$(MY_INSTALL_DIR) ../.. && \
+	make -j && make install
+	cd grpc && mkdir -p third_party/abseil-cpp/cmake/build && cd third_party/abseil-cpp/cmake/build && \
+	cmake -DCMAKE_INSTALL_PREFIX=$(MY_INSTALL_DIR) -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE ../.. && \
+	make -j && make install
+
+grpc:
+	git clone --recurse-submodules -b sgx-ratls https://github.com/Ruide/grpc
 
 ############################## RUNNING TESTS ##################################
 .PHONY: start-native-server
@@ -103,6 +118,7 @@ clean:
 
 .PHONY: distclean
 distclean: clean
+	$(RM) -rf grpc .local
 
 ################################## RUN ####################################
 run:
