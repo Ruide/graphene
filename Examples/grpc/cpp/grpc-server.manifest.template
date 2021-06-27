@@ -38,6 +38,11 @@ loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/{{ arch_libdir }}"
 # Allow for injecting SIGTERM signal from the host.
 sys.enable_sigterm_injection = true
 
+################################## REMOTE ATTESTATION ####################################
+
+# Request remote attestation functionality from Graphene
+sgx.remote_attestation = true
+
 ################################# MOUNT FS  ###################################
 
 # General notes:
