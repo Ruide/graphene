@@ -10,22 +10,20 @@ and requirements for applications running under Graphene-SGX.
 
 # Quick Start
 
+Build graphene-sgx first and replacing ./grpc/examples/cpp/helloworld/ratls and ./grpc/examples/cpp/helloworld/mbedtls with the corresponding items which graphene builds if following make gives link-time error.
+
 ```sh
 # build gRPC and the final manifest
 make SGX=1
 
-# run original Redis against a benchmark (redis-benchmark supplied with Redis)
-./redis-server --save '' --protected-mode no &
-src/src/redis-benchmark
-kill %%
+# run gRPC server in Graphene-SGX against a benchmark
+make run
 
-# run Redis in non-SGX Graphene against a benchmark
-graphene-direct redis-server --save '' --protected-mode no &
-src/src/redis-benchmark
-kill %%
+# clean gRPC server and rebuild gRPC server
+make clean
+make SGX=1
+make run
 
-# run Redis in Graphene-SGX against a benchmark
-graphene-sgx redis-server --save '' --protected-mode no &
-src/src/redis-benchmark
-kill %%
+# clean gRPC source and installed packages
+make distclean 
 ```
