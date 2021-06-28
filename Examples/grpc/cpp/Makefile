@@ -78,7 +78,7 @@ grpc-server.token: grpc-server.sig
 # Redis build process creates the final executable as src/redis-server. For
 # simplicity, copy it into our root directory.
 
-grpc-server: .local/bin/grpc_cpp_plugin
+grpc-server: .local/bin/grpc_cpp_plugin /usr/lib/x86_64-linux-gnu/libra_tls_attest.so
 	cd grpc/examples/cpp/helloworld && mkdir -p cmake/build && cd cmake/build && \
 	cmake -DCMAKE_PREFIX_PATH=$(MY_INSTALL_DIR) ../.. && make -j
 	cp ./grpc/examples/cpp/helloworld/cmake/build/greeter_server grpc-server
@@ -94,6 +94,9 @@ grpc-server: .local/bin/grpc_cpp_plugin
 
 grpc:
 	git clone --recurse-submodules -b sgx-ratls https://github.com/Ruide/grpc
+
+/usr/lib/x86_64-linux-gnu/libra_tls_attest.so:
+	sudo cp grpc/examples/cpp/helloworld/./ratls/lib/libra_tls_attest.so /usr/lib/x86_64-linux-gnu/
 
 ############################## RUNNING TESTS ##################################
 .PHONY: start-native-server
