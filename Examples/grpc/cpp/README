@@ -8,6 +8,17 @@ The Makefile and the template manifest contain extensive comments and are made
 self-explanatory. Please review them to gain understanding of Graphene-SGX
 and requirements for applications running under Graphene-SGX.
 
+## gRPC RA-TLS server
+
+The server is supposed to run in the SGX enclave with Graphene and RA-TLS dlopen-loaded. 
+
+## gRPC RA-TLS client
+
+If client is run without additional command-line arguments, it uses default RA-TLS verification
+callback that compares `MRENCLAVE`, `MRSIGNER`, `ISV_PROD_ID` and `ISV_SVN` against the corresonding
+`RA_TLS_*` environment variables. To run the client with its own verification callback, execute it
+with four additional command-line arguments (see the source code for details).
+
 # Quick Start
 
 Build graphene-sgx first and replacing ./grpc/examples/cpp/helloworld/ratls and ./grpc/examples/cpp/helloworld/mbedtls with the corresponding items which graphene builds if following make gives link-time error.
@@ -26,4 +37,16 @@ make run
 
 # clean gRPC source and installed packages
 make distclean 
+
+# client verification, default quote verification
+./grpc/examples/cpp/helloworld/cmake/build/greeter_client
+
+# client verification, customized quote verification
+RA_TLS_EPID_API_KEY=12345678901234567890123456789012 \
+RA_TLS_ALLOW_OUTDATED_TCB_INSECURE=1 \
+RA_TLS_MRENCLAVE=1234567890123456789012345678901234567890123456789012345678901234 \
+RA_TLS_MRSIGNER=1234567890123456789012345678901234567890123456789012345678901234 \
+RA_TLS_ISV_PROD_ID=0 RA_TLS_ISV_SVN=0 \
+./grpc/examples/cpp/helloworld/cmake/build/greeter_client
+
 ```
